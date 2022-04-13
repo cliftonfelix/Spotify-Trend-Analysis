@@ -75,8 +75,11 @@ genre_labels = histogram_df %>%
   summarise(count = n()) %>%
   mutate(label = paste(playlist_genre, " (Track Count: ", count, ") ",sep = ""))
 
-playlist_genre.labs <- genre_labels$label
-names(playlist_genre.labs) <- genre_labels$playlist_genre #is this base R
+playlist_genre.labs <- genre_labels %>%
+  pull(label)
+
+names(playlist_genre.labs) <- genre_labels %>%
+  pull(playlist_genre)
 
 genres_mean = spotify_songs %>%
   group_by(playlist_genre) %>%
