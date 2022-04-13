@@ -1,0 +1,228 @@
+---
+title: "Spotify Team J"
+output: html_document
+---
+
+```{css style settings, echo = FALSE}
+blockquote {
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: 14px;
+    border-left: 5px solid #eee;
+}
+```
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 9, fig.height = 9)
+```
+
+# Introduction
+
+# Data Description
+
+-- describe NA
+
+```{r, echo = T, results = 'hide', warning = FALSE, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+
+spotify_songs = spotify_songs %>%
+  mutate(playlist_genre = recode(playlist_genre, "edm" = "EDM", "latin" = "Latin", 
+                                 "pop" = "Pop", "r&b" = "R&B", 
+                                 "rap" = "Rap", "rock" = "Rock"),
+         playlist_subgenre = recode(playlist_subgenre, "big room" = "Big Room", "electro house" = "Electro House",
+                                    "pop edm" = "Pop EDM", "progressive electro house" = "Progressive Electro House",
+                                    "latin hip hop" = "Latin Hip Hop", "latin pop" = "Latin Pop", 
+                                    "reggaeton" = "Reggaeton", "tropical" = "Tropical", 
+                                    "dance pop" = "Dance Pop", "electropop" = "Electropop",
+                                    "indie poptimism" = "Indie Poptimism", "post-teen pop" = "Post Teen Pop",
+                                    "hip pop" = "Hip Pop", "neo soul" = "Neo Soul",
+                                    "new jack swing" = "New Jack Swing", "urban contemporary" = "Urban Contemporary",
+                                    "gangster rap" = "Gangster Rap", "hip hop" = "Hip Hop", 
+                                    "southern hip hop" = "Southern Hip Hop", "trap" = "Trap",
+                                    "album rock" = "Album Rock", "classic rock" = "Classic Rock",
+                                    "hard rock" = "Hard Rock", "permanent wave" = "Permanent Wave"),
+         playlist_genre = as.factor(playlist_genre),
+         playlist_subgenre = as.factor(playlist_subgenre))
+```
+
+# Question 1
+
+## Introduction
+
+The question we would like to answer is “what is the distribution of popularity among genres and their respective subgenres?”. As we are interested in the distribution of all the genres and subgenres, the parts of the dataset that are necessary in terms of columns would be track_id, track_popularity, playlist_genre, and playlist_subgenre, and in terms of rows, we filter out duplicate rows (if there are any). We are interested in this question because we would like to see how the genres and subgenres of a track may affect its popularity, as well as check whether any particular genre dominates the music industry as of 2020. If presented with any unexpected pattern in any of the distributions, we hope that it would give us new insights into the music industry and expand our knowledge about the impact of genre/subgenre labels.
+
+## Methodology
+
+The first visualization is a collection of 6 histograms that show the distribution of track popularity score in each of the 6 genres in the dataset (EDM, Latin, Pop, R&B, Rap, Rock). For each genre, it shows the number of tracks under each popularity score (0 - 100). This visualization utilizes 3 variables: track_id, track_popularity, and playlist_genre in the process; however, in the final graph, we do not display track_id variable as it is only used to calculate the number of tracks for the histogram (y axis). We also add two helper lines, “mean” and “hugely popular threshold”, to aid in the explanation and compare trends across genres. We believe that histogram graphs are the most suitable plot type as track_popularity variable is discrete (0 - 100) and we want to see the distribution of the number of tracks against track_popularity from 0 to 100 as the x axis. Since we are looking at the distributions for 6 different genres, for cleaner display and ease of comparison, we decided to use 6 different histograms in the visualization (using facet_wrap(~playlist_genre)). Furthermore, as the actual distribution is skewed to the right due to the large number of tracks with track_popularity=0, for each histogram, we converted the y axis to a log scale to compress the skewness towards large values and display a wide range of values (compressing variance) in a more compact and readable manner.
+
+For further analysis of the question, we would like to show the distribution of track_popularity for all subgenres inside each genre and how subgenres affect their respective genres. Hence, we constructed violin graphs for each of the 24 subgenres’ distribution and grouped them by their respective genre (using facet_wrap(~playlist_genre)) to enable the ease of comparison within each genre. This visualization uses 4 variables: track_id, track_popularity, playlist_genre, and playlist_subgenre in its construction; however, similar to the first visualization, we do not display track_id variable in the final graph as it is only used for the weights in the violin graphs. We also add a black dot, describing the 25th percentile of the distribution, in each violin graph to aid in the explanation and compare trends across subgenres. We chose violin graphs because they not only convey the general trend of each subgenre in a readable manner that allows for ease of comparison with other subgenres, but, as opposed to boxplots, also are able to visualize multimodal distributions – an indication that the sample contains several patterns of response or extreme views, preferences, or attitudes.
+
+## Visualizations
+
+```{r, fig.align='center', fig.width = 9, fig.height = 9}
+histogram_df = spotify_songs %>%
+  select(track_id, track_popularity, playlist_genre) %>%
+  distinct()
+
+genre_labels = histogram_df %>% 
+  group_by(playlist_genre) %>% 
+  summarise(count = n()) %>%
+  mutate(label = paste(playlist_genre, " (Track Count: ", count, ") ",sep = ""))
+
+playlist_genre.labs <- genre_labels$label
+names(playlist_genre.labs) <- genre_labels$playlist_genre #is this base R
+
+genres_mean = spotify_songs %>%
+  group_by(playlist_genre) %>%
+  summarize("mean" = mean(track_popularity, na.rm = TRUE))
+
+histogram_plot = histogram_df %>%
+  ggplot(aes(x = track_popularity)) +
+  geom_histogram(aes(fill = playlist_genre), boundary = 0, alpha = 0.45, binwidth = 1, show.legend = FALSE) +
+  geom_segment(data = genres_mean, aes(x = mean, y = 1, xend = mean, yend = 90)) +
+  geom_text(data = genres_mean, aes(x = mean, y = 300), label = "mean", size = 3) +
+  geom_segment(data = genres_mean, aes(x = 75, y = 1, xend = 75, yend = 100)) +
+  geom_text(data = genres_mean, aes(x = 75, y = 300), label = "hugely popular threshold", size = 3) +
+  facet_wrap(~playlist_genre, 
+             ncol = 1,
+             labeller = labeller(playlist_genre = playlist_genre.labs)) + 
+  ylab("Total Tracks (in log scale)") +
+  xlab("Track Popularity Score") +
+  theme_minimal() +
+  scale_y_log10() +
+  scale_x_continuous(breaks = seq(0, 100, by = 5)) +
+  labs(title = "Distribution of Track Popularity by Genres")
+
+histogram_plot
+```
+
+```{r, fig.align='center', fig.width = 9, fig.height = 7}
+subgenre_25th = spotify_songs %>%
+  group_by(playlist_subgenre) %>%
+  summarize("25th" = quantile(track_popularity, c(0.25), na.rm = TRUE))
+
+violin_plot = spotify_songs %>%
+  select(track_id, track_popularity, playlist_genre, playlist_subgenre) %>%
+  distinct() %>%
+  inner_join(subgenre_25th) %>%
+  ggplot(aes(x = playlist_subgenre, y = track_popularity)) +
+  geom_violin(alpha = 0.3, aes(color = playlist_genre, fill = playlist_genre), show.legend = FALSE) +
+  geom_point(aes(y = `25th`)) +
+  theme(legend.position = "None") + 
+  scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 8)) +
+  ylab("Track Popularity Score") +
+  xlab("") +
+  labs(title = "Distribution of Track Popularity by Subgenres", 
+       subtitle = "Black dot represents the position of respective 25th percentile for each subgenre") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 9)) +
+  facet_wrap(~playlist_genre, scales="free_x")
+
+violin_plot
+```
+
+## Discussions
+
+We want readers to see the differences and similarities among the genres' distribution. Using the mean line in each genre’s histogram, we can see that, on average, Pop and Latin are the most popular genres (with means around 47), and EDM is the least popular genre (mean around 35). Another difference within the distributions we hope the readers see is that Rock did not have many hugely popular tracks, which can be observed by comparing the top tail to the right of the hugely popular threshold line of Rock with the other genres (where Rock decreases sharply before 85 ***** as opposed to the other genres). In terms of similarities, trends-wise, we can see that all the genres have a similar distribution: (1) a general increase as popularity approaches the mean value, (2) a steep fall at popularity > 75 (there exist only few hugely popular tracks), (3) the domination of very unpopular tracks with “near 0” (“~0”) popularity (as seen from the surprising sharp spike at the left tail end). However, one trend that is not exactly obvious from our graph is the true number of 0-popularity tracks (due to the log scale on y axis possibly misrepresenting the actual number). Hence, it is possible that readers misinterpret that the number of 0-popularity tracks in all genres are quite similar, when, however, they are in fact quite different (EDM having around twice the number of 0’s compared to Pop and Latin). As the number of tracks in each genre is quite balanced (ranging from 4428 to 5518 tracks), more 0’s will lead to a lower mean, hence this can possibly explain why the mean popularity of EDM is the lowest, while those for Pop and Latin are the highest.
+
+From the second graph, we want readers to observe how each subgenre affects the popularity score distribution of its respective genre. This can be done by looking at the shape of the corresponding subgenre’s violin graph, which is unique to each subgenre. Some of them have greater weight at the lower popularity score values, some are top-heavy, while others are quite equally distributed. The point inside each violin graph indicates the 25th percentile of the distribution to show the position of the lower tail of each subgenre’s distribution. By looking at the violins’ generally bulky lower tail and the placement of these 25th percentile points, one trend that we can see is that for most genres, one or two subgenres usually contribute to the domination of “~0” popularity score. However, a trend that cannot be observed from these graphs is the true number of 0 popularity tracks in each subgenre due to the smoothing function used for constructing the violin graphs, but this should not be an issue since we are focusing on the “~0” popularity tracks. Moreover, by looking at where each violin graph is the widest, we can see the peak(s) of the unimodal or multimodal distribution across subgenres. From these peaks, two trends we can observe are: (1) the subgenres in EDM have the most lower-valued popularity score peaks compared to other genres, (2) subgenres with the word “Pop” inside, regardless of the genre, have peaks in the high popularity region.
+
+We speculate that the two visualizations look this way because the majority of tracks in this Spotify dataset were published pre-2020. Since popularity score was considered in 2020 and tracks tend to become less popular as they age, it results in a lower popularity score mean across all genres (< 50). We also assume that (1) the large number of “~0” popularity tracks and (2) only a few hugely popular tracks, are due to most listeners preferring to listen to already popular artists or well-known tracks rather than listening to lesser-known tracks. Hence, a small set of tracks will have higher popularity scores as observed. Since the dataset is a sample of actual Spotify data in 2020, it is also understandable that the trends observed from our visualizations may not necessarily reflect true trends in the music industry. For instance, in our first visualization, we see that Rock tracks are not as popular as those of other genres in 2020. We speculate that it is because this dataset only contains 4 subgenres of Rock, which are Album Rock, Classic Rock, Hard Rock, and Permanent Rock, but there are more popular subgenres of Rock in 2020, such as indie rock, alternative rock, and heavy metal, which are not included in the dataset, which may result in the fewer hugely popular tracks in Rock compared to other genres.
+
+# Question 2
+
+```{r, fig.width = 9, fig.height = 6}
+spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+
+min_max_norm = function(x) {
+  (x - mean(x)) / (sd(x))
+}
+
+spotify_songs$danceability = min_max_norm(spotify_songs$danceability)
+spotify_songs$energy = min_max_norm(spotify_songs$energy)
+spotify_songs$loudness = min_max_norm(spotify_songs$loudness)
+spotify_songs$speechiness = min_max_norm(spotify_songs$speechiness)
+spotify_songs$acousticness = min_max_norm(spotify_songs$acousticness)
+spotify_songs$instrumentalness = min_max_norm(spotify_songs$instrumentalness)
+spotify_songs$liveness = min_max_norm(spotify_songs$valence)
+spotify_songs$tempo = min_max_norm(spotify_songs$tempo)
+spotify_songs$valence = min_max_norm(spotify_songs$valence)
+spotify_songs$duration_ms = min_max_norm(spotify_songs$duration_ms)
+spotify_songs$key = min_max_norm(spotify_songs$key)
+
+spotify_songs %>% 
+  select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>% 
+  distinct() %>%
+  group_by(track_popularity) %>%
+  summarize(acousticness = mean(acousticness),
+            danceability = mean(danceability),
+            duration = mean(duration_ms),
+            energy = mean(energy),
+            instrumentalness = mean(instrumentalness),
+            loudness = mean(loudness),
+            speechiness = mean(speechiness),
+            tempo = mean(tempo)) %>%
+  gather(acousticness:tempo, key = "characteristic", value = "value") %>% 
+  ggplot(aes(track_popularity, value)) +
+  stat_smooth(se = FALSE, geom = "area", col = 'black',
+              method = 'loess', alpha = .5,
+              span = 0.8, fill = 'black') +
+  facet_wrap(~characteristic, ncol = 4) + 
+  xlab('Track Popularity Score') + 
+  ylab('Attribute Value') +
+  theme_minimal() #add 0.2 label
+```
+
+```{r, fig.width = 9, fig.height = 6}
+rankings = spotify_songs %>% 
+  select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>%
+  distinct() %>%
+  group_by(track_artist) %>%
+  summarize(avg_score = mean(track_popularity, na.rm = TRUE),
+            count = n()) %>%
+  filter(count > 10) %>%
+  arrange(desc(avg_score, count))
+
+top5_artist = c(rankings[1, 1], rankings[2, 1], rankings[3, 1], rankings[4, 1], rankings[5, 1])
+
+coord_radar <- function () {
+  ggproto("CordRadar", CoordPolar, theta = "x", r = "y", start = -1.18,
+          direction = 1,
+          is_linear = function(coord) TRUE)
+}
+
+spotify_songs %>%
+  select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>%
+  distinct() %>%
+  filter(track_artist %in% top5_artist) %>%
+  select(track_artist, track_name, danceability:duration_ms) %>%
+  group_by(track_artist) %>%
+  summarize(acousticness = mean(acousticness),
+            danceability = mean(danceability),
+            duration = mean(duration_ms),
+            energy = mean(energy),
+            instrumentalness = mean(instrumentalness),
+            loudness = mean(loudness),
+            speechiness = mean(speechiness),
+            tempo = mean(tempo)) %>%
+  gather(acousticness:tempo, key = "characteristic", value = "value") %>%
+  ggplot() +
+  geom_text(x = 2, y = -0.05, aes(label = ifelse(characteristic == "acousticness", "0", "")), size = 2.5) +
+  geom_text(x = 2, y = -1, aes(label = ifelse(characteristic == "acousticness", "-1", "")), size = 2.5) +
+  geom_text(x = 2, y = 1, aes(label = ifelse(characteristic == "acousticness", "1", "")), size = 2.5) +
+  geom_text(x = 2, y = -1.85, aes(label = ifelse(characteristic == "acousticness", "-2", "")), size = 2.5) +
+  geom_text(x = 2, y = 2, aes(label = ifelse(characteristic == "acousticness", "2", "")), size = 2.5) +
+  geom_polygon(aes(x = characteristic, y = value, group=track_artist, color = track_artist, fill = track_artist), alpha=0.3, show.legend=FALSE) +
+  coord_radar() +
+  theme_minimal() +
+  xlab("") + ylab("") +
+  ggtitle("Top 5 Artists") +
+  theme(axis.text.x  = element_text(size = rel(0.6)), axis.text.y = element_blank()) +
+  facet_wrap(~track_artist, ncol = 3)
+```
