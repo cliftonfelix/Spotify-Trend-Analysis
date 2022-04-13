@@ -179,7 +179,7 @@ rankings = spotify_songs %>%
   summarize(avg_score = mean(track_popularity, na.rm = TRUE),
             count = n()) %>%
   filter(count > 10) %>%
-  arrange(desc(avg_score, count))
+  arrange(-avg_score, -count)
 
 top5_artist = c(rankings[1, 1], rankings[2, 1], rankings[3, 1], rankings[4, 1], rankings[5, 1])
 
