@@ -144,19 +144,8 @@ min_max_norm = function(x) {
   (x - mean(x)) / (sd(x))
 }
 
-spotify_songs$danceability = min_max_norm(spotify_songs$danceability)
-spotify_songs$energy = min_max_norm(spotify_songs$energy)
-spotify_songs$loudness = min_max_norm(spotify_songs$loudness)
-spotify_songs$speechiness = min_max_norm(spotify_songs$speechiness)
-spotify_songs$acousticness = min_max_norm(spotify_songs$acousticness)
-spotify_songs$instrumentalness = min_max_norm(spotify_songs$instrumentalness)
-spotify_songs$liveness = min_max_norm(spotify_songs$valence)
-spotify_songs$tempo = min_max_norm(spotify_songs$tempo)
-spotify_songs$valence = min_max_norm(spotify_songs$valence)
-spotify_songs$duration_ms = min_max_norm(spotify_songs$duration_ms)
-spotify_songs$key = min_max_norm(spotify_songs$key)
-
 spotify_songs %>% 
+  mutate(across(danceability:duration_ms, min_max_norm))%>% 
   select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>% 
   distinct() %>%
   group_by(track_popularity) %>%
