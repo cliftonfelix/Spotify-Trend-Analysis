@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.width = 9, fig.height = 9)
 ```
 
 # Introduction
-
+Music can be enjoyed by anyone. Some find themselves drawn to the catchy beats of EDM music, while others are fascinated by the lyrical play in rap songs. Amidst this diversity in music preference, some artists receive much more success than their counterparts. The Spotify Songs dataset from TidyTuesday gives us a chance to uncover trends in today’s music scene. We first ask which genres and subgenres receive more attention than others, then we enquire into the nature of top artists’ music to figure out what makes these artists stand out from others.
 # Data Description
 
 -- describe NA
