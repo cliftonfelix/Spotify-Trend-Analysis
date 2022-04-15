@@ -12,7 +12,6 @@ blockquote {
 }
 ```
 
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.width = 9, fig.height = 9)
 ```
@@ -23,8 +22,6 @@ Music can be enjoyed by anyone. Some find themselves drawn to the catchy beats o
 # Data Description
 
 Data cleaning wise, what we did was to first look at the NA values that are present (na_df) and we realized that the missing data in the 5 rows presented specifically track_name, track_artist,track_album_name were NA and since we require the track_artist variable for the questions we would like to answer, we removed these rows.Data Transformation wise, what we did was to rename the subgenres into the way they are described(capitalize accordingly) online and in the resources we used to make it more presentable when visualized. Then since those 2 variables were originally of class "character", we instead converted them to factors (which have inherently predefined "levels") to better describe their categorization.
-
-
 
 ```{r, echo = T, results = 'hide', warning = FALSE, message = FALSE}
 library(tidyverse)
