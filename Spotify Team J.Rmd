@@ -185,16 +185,16 @@ spotify_songs %>%
 ```
 
 ```{r, fig.width = 9, fig.height = 6}
-rankings=spotify_songs %>% 
+rankings = spotify_songs %>% 
   select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>%
   distinct()%>%
   group_by(track_artist)%>%
-  summarize(avg_score=mean(track_popularity,na.rm=TRUE),
-            count=n())%>%
-  filter(count>10)%>%
-  arrange(desc(avg_score,count))
+  summarize(avg_score = mean(track_popularity, na.rm = TRUE),
+            count = n())%>%
+  filter(count > 10)%>%
+  arrange(desc(avg_score, count))
 
-top5_artist = c(rankings[1,1],rankings[2,1],rankings[3,1],rankings[4,1],rankings[5,1])
+top5_artist = c(rankings[1, 1], rankings[2, 1], rankings[3, 1], rankings[4, 1], rankings[5, 1])
 
 #2nd visualization
 
@@ -222,11 +222,11 @@ spotify_songs %>%
             Tempo = mean(tempo)) %>%
   gather(Acousticness:Tempo, key = "characteristic", value = "value") %>%
   ggplot() +
-  geom_text(x = 2, y = -0.05, aes(label = ifelse(characteristic == "acousticness", "0", "")), size = 2.5) +
-  geom_text(x = 2, y = -1, aes(label = ifelse(characteristic == "acousticness", "-1", "")), size = 2.5) +
-  geom_text(x = 2, y = 1, aes(label = ifelse(characteristic == "acousticness", "1", "")), size = 2.5) +
-  geom_text(x = 2, y = -1.85, aes(label = ifelse(characteristic == "acousticness", "-2", "")), size = 2.5) +
-  geom_text(x = 2, y = 2, aes(label = ifelse(characteristic == "acousticness", "2", "")), size = 2.5) +
+  geom_text(x = 2, y = -0.05, aes(label = ifelse(characteristic == "Acousticness", "0", "")), size = 2.5) +
+  geom_text(x = 2, y = -1, aes(label = ifelse(characteristic == "Acousticness", "-1", "")), size = 2.5) +
+  geom_text(x = 2, y = 1, aes(label = ifelse(characteristic == "Acousticness", "1", "")), size = 2.5) +
+  geom_text(x = 2, y = -1.85, aes(label = ifelse(characteristic == "Acousticness", "-2", "")), size = 2.5) +
+  geom_text(x = 2, y = 2, aes(label = ifelse(characteristic == "Acousticness", "2", "")), size = 2.5) +
   geom_polygon(aes(x = characteristic, y = value, group=track_artist, color = track_artist, fill = track_artist), alpha=0.3, show.legend=FALSE) +
   coord_radar() +
   theme_minimal() +
