@@ -32,8 +32,13 @@ library(ggplot2)
 ```
 
 ```{r}
-spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+spotify_songs = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
+
+standardiztion = function(x) {
+  (x - mean(x)) / (sd(x))
+}
 spotify_songs = spotify_songs %>%
+  mutate(across(danceability:duration_ms, standardiztion))%>% 
   mutate(playlist_genre = recode(playlist_genre, "edm" = "EDM", "latin" = "Latin", 
                                  "pop" = "Pop", "r&b" = "R&B", 
                                  "rap" = "Rap", "rock" = "Rock"),
@@ -71,24 +76,29 @@ For further analysis of the question, we would like to show the distribution of 
 histogram_df = spotify_songs %>%
   select(track_id, track_popularity, playlist_genre) %>%
   distinct()
+
 genre_labels = histogram_df %>% 
   group_by(playlist_genre) %>% 
   summarise(count = n()) %>%
   mutate(label = paste(playlist_genre, " (Track Count: ", count, ") ",sep = ""))
-playlist_genre.labs <- genre_labels %>%
+
+playlist_genre.labs = genre_labels %>%
   pull(label)
-names(playlist_genre.labs) <- genre_labels %>%
+
+names(playlist_genre.labs) =genre_labels %>%
   pull(playlist_genre)
+
 genres_mean = spotify_songs %>%
   group_by(playlist_genre) %>%
   summarize("mean" = mean(track_popularity, na.rm = TRUE))
+
 histogram_plot = histogram_df %>%
   ggplot(aes(x = track_popularity)) +
   geom_histogram(aes(fill = playlist_genre), boundary = 0, alpha = 0.45, binwidth = 1, show.legend = FALSE) +
   geom_segment(data = genres_mean, aes(x = mean, y = 1, xend = mean, yend = 90)) +
-  geom_text(data = genres_mean, aes(x = mean, y = 300), label = "mean", size = 3) +
+  geom_text(data = genres_mean, aes(x = mean, y = 300), label = "Mean", size = 3) +
   geom_segment(data = genres_mean, aes(x = 75, y = 1, xend = 75, yend = 100)) +
-  geom_text(data = genres_mean, aes(x = 75, y = 300), label = "hugely popular threshold", size = 3) +
+  geom_text(data = genres_mean, aes(x = 75, y = 300), label = "Hugely Popular Threshold", size = 3) +
   facet_wrap(~playlist_genre, 
              ncol = 1,
              labeller = labeller(playlist_genre = playlist_genre.labs)) + 
@@ -98,6 +108,7 @@ histogram_plot = histogram_df %>%
   scale_y_log10() +
   scale_x_continuous(breaks = seq(0, 100, by = 5)) +
   labs(title = "Distribution of Track Popularity by Genres")
+
 histogram_plot
 ```
 
@@ -105,6 +116,7 @@ histogram_plot
 subgenre_25th = spotify_songs %>%
   group_by(playlist_subgenre) %>%
   summarize("25th" = quantile(track_popularity, c(0.25), na.rm = TRUE))
+
 violin_plot = spotify_songs %>%
   select(track_id, track_popularity, playlist_genre, playlist_subgenre) %>%
   distinct() %>%
@@ -121,6 +133,7 @@ violin_plot = spotify_songs %>%
   theme_minimal() +
   theme(axis.text.x = element_text(size = 9)) +
   facet_wrap(~playlist_genre, scales="free_x")
+
 violin_plot
 ```
 
@@ -135,31 +148,26 @@ We speculate that the two visualizations look this way because the majority of t
 # Question 2
 
 ```{r, fig.width = 9, fig.height = 6}
-spotify_songs <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
-min_max_norm = function(x) {
-  (x - mean(x)) / (sd(x))
-}
 spotify_songs %>% 
-  mutate(across(danceability:duration_ms, min_max_norm))%>% 
   select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>% 
   distinct() %>%
   group_by(track_popularity) %>%
-  summarize(acousticness = mean(acousticness),
-            danceability = mean(danceability),
-            duration = mean(duration_ms),
-            energy = mean(energy),
-            instrumentalness = mean(instrumentalness),
-            loudness = mean(loudness),
-            speechiness = mean(speechiness),
-            tempo = mean(tempo)) %>%
-  gather(acousticness:tempo, key = "characteristic", value = "value") %>% 
+  summarize(Acousticness = mean(acousticness),
+            Danceability = mean(danceability),
+            Duration = mean(duration_ms),
+            Energy = mean(energy),
+            Instrumentalness = mean(instrumentalness),
+            Loudness = mean(loudness),
+            Speechiness = mean(speechiness),
+            Tempo = mean(tempo)) %>%
+  gather(Acousticness:Tempo, key = "characteristic", value = "value") %>% 
   ggplot(aes(track_popularity, value)) +
   stat_smooth(se = FALSE, geom = "area", col = 'black',
               method = 'loess', alpha = .5,
               span = 0.8, fill = 'black') +
   facet_wrap(~characteristic, ncol = 4) + 
   xlab('Track Popularity Score') + 
-  ylab('Attribute Value') +
+  ylab('Characteristc Value') +
   theme_minimal() #add 0.2 label
 ```
 
@@ -171,11 +179,13 @@ rankings=spotify_songs %>%
   summarize(avg_score=mean(track_popularity,na.rm=TRUE),
             count=n())%>%
   filter(count>10)%>%
-  arrange(-avg_score,-count)
+  arrange(desc(avg_score,count))
+
 top5_artist = c(rankings[1,1],rankings[2,1],rankings[3,1],rankings[4,1],rankings[5,1])
+
 #2nd visualization
 
-coord_radar <- function () {
+coord_radar = function () {
   ggproto("CordRadar", CoordPolar, theta = "x", r = "y", start = -1.18,
           direction = 1,
           is_linear = function(coord) TRUE)
@@ -184,7 +194,6 @@ coord_radar <- function () {
 
 
 spotify_songs %>%
-  mutate(across(danceability:duration_ms, min_max_norm))%>%
   select(-c(playlist_name, playlist_id, playlist_genre, playlist_subgenre)) %>%
   distinct() %>%
   filter(track_artist %in% top5_artist) %>%
