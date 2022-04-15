@@ -34,10 +34,14 @@ library(ggplot2)
 ```{r}
 spotify_songs = readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
 
+na_df = spotify_songs %>% filter_all(any_vars(is.na(.)))
+
 standardiztion = function(x) {
   (x - mean(x)) / (sd(x))
 }
+
 spotify_songs = spotify_songs %>%
+  anti_join(na_df)%>%
   mutate(across(danceability:duration_ms, standardiztion))%>% 
   mutate(playlist_genre = recode(playlist_genre, "edm" = "EDM", "latin" = "Latin", 
                                  "pop" = "Pop", "r&b" = "R&B", 
