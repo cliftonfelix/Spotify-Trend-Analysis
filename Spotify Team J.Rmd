@@ -21,7 +21,9 @@ Music can be enjoyed by anyone. Some find themselves drawn to the catchy beats o
 
 # Data Description
 
-Data cleaning wise, what we did was to first look at the NA values that are present (na_df) and we realized that the missing data in the 5 rows presented specifically track_name, track_artist,track_album_name were NA and since we require the track_artist variable for the questions we would like to answer, we removed these rows. Data Transformation-wise, what we did was to rename the subgenres into the way they are described(capitalize accordingly) online and in the resources we used to make it more presentable when visualized. Then since those 2 variables were originally of class "character", we instead converted them to factors (which have inherently predefined "levels") to better describe their categorization.
+This dataset was taken from Spotify’s API using the R package, spotifyr. It was compiled by  Charlie Thompson, Josiah Parry, Donal Phipps, and Tom Wolff in 2020. There are a total of 32833 observations and 23 variables. Each observation describes a track such as its name, id, artist, popularity, album and playlist details as well as characteristics such as energy, tempo, duration, just to name a few.
+
+To construct the 4 graphs below, what we first did was to look at the NA values that are present (na_df) and we found that there are 5 rows where the NA is presented in track_name, track_artist,track_album_name columns. Since we require the track_artist variable for the questions we would like to answer, we removed these rows. Then, we standardize all track characteristics variables to a standard normal distribution ~ N(0, 1). After that, we corrected the capitalization for playlist_genre and playlist_subgenre. Lastly, we converted playlist_genre and playlist_subgenre columns from class strings to factor class (to show categorical variable nature via the “levels” (in factor) that are present). Some general statistics to note are the data set contains a total of 26320 unique tracks, 10693 artists, 6 genres and 24 subgenres in the dataset.
 
 ```{r, echo = T, results = 'hide', warning = FALSE, message = FALSE}
 library(tidyverse)
