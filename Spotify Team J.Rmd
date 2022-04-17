@@ -77,7 +77,7 @@ nrow(unique(spotify_songs %>% select(playlist_subgenre)))
 
 ```
 
-# Question 1
+# What is the distribution of popularity among genres and their respective subgenres?
 
 ## Introduction
 
@@ -156,7 +156,7 @@ From the second graph, we want readers to observe how each subgenre affects the 
 
 We speculate that the distributions in the two visualizations look this way because the majority of tracks in this Spotify dataset were published pre-2020. Since popularity score was considered in 2020 and tracks tend to become less popular as they age, it results in a lower popularity score mean across all genres (< 50). We also assume that the vast difference between the share “~0” popularity tracks and hugely popular tracks are due to most listeners preferring to listen to already popular artists or well-known tracks rather than listening to lesser-known tracks. Since the dataset is a sample of actual Spotify data in 2020, it is also understandable that the trends observed from our visualizations may not necessarily reflect true trends in the music industry. For instance, from our first visualization, we see that Rock tracks are not as popular as other genres’ tracks in 2020. We speculate that it is because this dataset only contains 4 subgenres of Rock, which are Album Rock, Classic Rock, Hard Rock, and Permanent Rock, but there are more popular subgenres of Rock not included in the dataset, such as Alternative Rock, Rock ‘n’ Roll, Indie Rock, and Progressive Rock <sup>[[3]](https://www.musicianwave.com/types-of-rock-music-subgenres/)</sup>.
 
-# Question 2
+# How similar are top artists’ tracks to the general taste of the population?
 
 ## Introduction
 
@@ -252,11 +252,15 @@ From the second visualization, we hope readers can see the overall characteristi
 
 Furthermore, looking into each polygon, we can better understand the characteristics of each artist’s tracks. For instance: (1) AC/DC tracks are low in acousticness and danceability, but their duration and energy are higher than average; which deviate from the trends observed in the first visualization of popular tracks being high in acousticness and danceability, but low in duration and energy. (2) for Billie Eilish’s tracks, acousticness is significantly higher (by 2 standard deviations) than the mean, whereas energy and loudness is significantly lower (by 2 standard deviations) than the mean; the exceptionally high acousticness and low energy in Billie Eilish’s tracks align with the trend for popular tracks, however, it is not the case for loudness. We speculate that (1) the 4 distinct characteristics in AC/DC tracks are their uniqueness which enabled this 1973-formed band to shine in the music industry for more than 30 years <sup>[[6]](https://en.wikipedia.org/wiki/AC/DC)</sup>, and (2) the 3 extreme characteristics in Billie Eilish tracks are Billie Eilish’s distinct musical style that sets her apart from other artists and captivates listeners <sup>[[7]](https://www.theguardian.com/music/2019/mar/29/billie-eilish-the-pop-icon-who-defines-21st-century-teenage-angst)</sup> . Similar observations can be made through the other three artists’ radar charts, where some of their tracks characteristics’ values deviate from the trends for popular tracks. We attribute these deviations to each artist’s individual musical style which, despite its differences from the general public’s taste, is still well-received, thereby placing them in the top 5.
 
-## References
+# References
+## Our Data Source
+
 1) Charlie Thompson, Josiah Parry, Donal Phipps, and Tom Wolff (2020). Spotify Songs.
 https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-01-21
 
 2) Thomas Mock (2022). Tidy Tuesday: A weekly data project aimed at the R ecosystem. https://github.com/rfordatascience/tidytuesday.
+
+## Others
 
 3) Clark, B. (2021). 30 Different Types of Rock Music (Rock Subgenres). Musician Wave.
 https://www.musicianwave.com/types-of-rock-music-subgenres/
