@@ -1,4 +1,3 @@
-
 ---
 title: "DSA2101 Group Project"
 output:
@@ -11,9 +10,9 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align =
                       fig.width = 9, fig.height = 9)
 ```
 
-## Spotify Trends
+## Spotify Trend Analysis
 
-Group J
+By Group J
 
 Name and matriculation number of team members:
 
@@ -42,6 +41,7 @@ spotify_songs = readr::read_csv('https://raw.githubusercontent.com/rfordatascien
 ```
 
 ```{r}
+#Dimension of dataset before transformation and cleaning 
 dim(spotify_songs)
 
 # Transformation
@@ -59,7 +59,7 @@ spotify_songs = spotify_songs %>%
   anti_join(na_df ,by="track_id")%>%
   #standardization
   mutate(across(danceability:duration_ms, standardiztion))%>%
-  #Rename
+  #rename
   mutate(playlist_genre = recode(playlist_genre, "edm" = "EDM", "latin" = "Latin", 
                                  "pop" = "Pop", "r&b" = "R&B", 
                                  "rap" = "Rap", "rock" = "Rock"),
@@ -81,6 +81,7 @@ spotify_songs = spotify_songs %>%
 # Statistics 
 ## not using summary(spotify_songs) as we standardized
 
+#Information about cleaned and transformed dataset
 dim(spotify_songs)
 nrow(unique(spotify_songs %>% select(track_name, track_artist)))
 nrow(unique(spotify_songs %>% select(track_artist)))
@@ -167,19 +168,18 @@ violin_plot = violin_df %>%
   geom_violin(alpha = 0.3, aes(color = playlist_genre, fill = playlist_genre), show.legend = FALSE) +
   #display 25th percentile
   geom_point(aes(y = `25th`)) +
-  #remove legend
-  theme(legend.position = "None") + 
   #Changing labels to 2 rows
   scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 8)) +
   ylab("Track Popularity Score") +
   #remove x label
   xlab("") +
-  labs(title = "Distribution of Track Popularity by Subgenres", 
-       subtitle = "Black dot represents the position of respective 25th percentile for each subgenre") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(size = 9)) +
+  #removing legends
+  theme(axis.text.x = element_text(size = 9),legend.position = "None") +
   #split by playlist_genre
-  facet_wrap(~playlist_genre, scales="free_x")
+  facet_wrap(~playlist_genre, scales="free_x") +
+  labs(title = "Distribution of Track Popularity by Subgenres", 
+       subtitle = "Black dot represents the position of respective 25th percentile for each subgenre")+
+  theme_minimal()
 
 violin_plot
 ```
@@ -233,7 +233,7 @@ smooth_plot = smooth_df %>%
   xlab('Track Popularity Score') + 
   ylab('Characteristc Value') +
   labs(title = "General Popularity Trend By Characteristics")+
-  theme_minimal() 
+  theme_minimal()
 
 smooth_plot
 ```
@@ -288,12 +288,13 @@ radar_plot = radar_df %>%
   geom_polygon(aes(x = characteristic, y = value, group=track_artist, color = track_artist, fill = track_artist), alpha=0.3, show.legend=FALSE) +
   #converting to polar coordinates
   coord_radar() +
-  theme_minimal() +
-  xlab("") + ylab("") +
-  labs(title ="Top 5 Artists" )+
-  theme(axis.text.x  = element_text(size = rel(0.6)), axis.text.y = element_blank()) +
+  xlab("") + 
+  ylab("") +
   #split by track_artist
-  facet_wrap(~track_artist, ncol = 3)
+  facet_wrap(~track_artist, ncol = 3)+
+  labs(title ="Top 5 Artists") +
+  theme_minimal() +
+  theme(axis.text.x  = element_text(size = rel(0.6)), axis.text.y = element_blank())
 
 radar_plot
 ```
