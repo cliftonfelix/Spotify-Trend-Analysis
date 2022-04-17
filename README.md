@@ -1,5 +1,3 @@
-The following is a data visualisation project done by 5 students from NUS, for the course DSA2101. For any enquiries please contact cliftonfelix@yahoo.com
-
 # Spotify Trend Analysis
 
 ## What is the Distribution of Popularity among Genres and their Respective Subgenres?
